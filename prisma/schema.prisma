@@ -1,0 +1,55 @@
+// Укажите источник данных (базу данных)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Генератор клиента
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Модели данных
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  avatar    String?
+  password  String
+  feedbacks Feedback[]
+  upvotes   Upvote[]
+}
+
+model Feedback {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  status      Status   @relation(fields: [statusId], references: [id])
+  statusId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  upvotes     Upvote[]
+}
+
+model Upvote {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  feedback    Feedback @relation(fields: [feedbackId], references: [id])
+  feedbackId  Int
+}
+
+model Category {
+  id    Int      @id @default(autoincrement())
+  name  String   @unique
+  posts Feedback[]
+}
+
+model Status {
+  id    Int      @id @default(autoincrement())
+  name  String   @unique
+  posts Feedback[]
+}
